@@ -6,6 +6,7 @@ import sys
 import pyttsx3
 import os
 from dotenv import load_dotenv
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel
 
 
 # ===================== CONFIGURATION =====================
@@ -17,6 +18,36 @@ genai.configure(api_key=API_KEY)
 # Increased grid resolution (finer precision)
 GRID_ROWS, GRID_COLS = 27, 48
 SCREENSHOT_PATH = "screen.png"
+
+# Creating the GUI for user input
+
+def gui():
+    app = QApplication([])
+
+    window = QWidget()
+    window.setWindowTitle("LLM Controller")
+    window.setGeometry(100, 100, 400, 100)
+
+    layout = QVBoxLayout()
+    label = QLabel("Enter the task you wish to perform (Ex: Open Chrome and search for cats):")
+    layout.addWidget(label)
+
+    text_box = QLineEdit()
+    layout.addWidget(text_box)
+
+    result = {"text": None}  # store entered text
+
+    def handle_enter():
+        result["text"] = text_box.text()
+        window.close()
+
+    text_box.returnPressed.connect(handle_enter)
+
+    window.setLayout(layout)
+    window.show()
+    app.exec()
+    
+    return result["text"]
 
 
 # ===================== SCREEN CAPTURE =====================
@@ -213,7 +244,7 @@ def ask_llm(task, screenshot_path, history):
 
 # ===================== MAIN LOOP =====================
 def main():
-    task = input("Enter your task (e.g., 'Open Google Chrome'): ")
+    task = gui()
     history = []
     attempt_log = {}  # ✅ tracks how many times each instruction was executed
 
